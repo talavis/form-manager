@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  db:
+    image: mongo:latest
+    volumes:
+      - ./mongo-data:/data/db
+    ports:
+      - 127.0.0.1:27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=mongopassword
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfiles/Dockerfile.backend
+      target: dev
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=form_manager
+    depends_on:
+      - db
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: ./form_manager
+        target: /code/form_manager
+
+  frontend:
+    build:
+      context: ./
+      dockerfile: Dockerfiles/Dockerfile.frontend
+      target: dev
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: ./frontend/src
+        target: /code/src
+
+  proxy:
+    image: nginx:alpine
+    ports:
+      - 127.0.0.1:5000:80
+    depends_on:
+      - backend
+      - frontend
+      - db
+    volumes:
+      - type: bind
+        source: ./Dockerfiles/nginx.conf.dev
+        target: /etc/nginx/nginx.conf
+
+  mailcatcher:
+    image: sj26/mailcatcher:latest
+    ports:
+      - 127.0.0.1:1080:1080
