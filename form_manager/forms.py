@@ -6,8 +6,14 @@ from form_manager import utils
 blueprint = flask.Blueprint("forms", __name__)  # pylint: disable=invalid-name
 
 
-@blueprint.route("/<form_identifier>", methods=["POST"])
-def suggest_form(form_identifier:str):
+@blueprint.route("", methods=["GET"])
+def list_forms():
+    form_info = flask.g.db["forms"].find_one({"identifier": form_identifier})
+    return flask.Response(status=200)
+
+
+@blueprint.route("/incoming/<form_identifier>", methods=["POST"])
+def receive_response(form_identifier:str):
     """
     Save the response for the form to the db.
 
@@ -28,10 +34,10 @@ def suggest_form(form_identifier:str):
 
     if form_info.get("target_email"):
         utils.send_email()
-    return flask.Response(page, status=200)
+    return flask.Response(status=200)
 
 
-@blueprint.route("/<entry>/list/", methods=["GET"])
+@blueprint.route("/responses/<entry>/", methods=["GET"])
 def get_entry_list(entry):
     args = dict(flask.request.args)
     token = args.get("token")

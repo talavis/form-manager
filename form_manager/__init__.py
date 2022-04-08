@@ -6,7 +6,7 @@ import flask
 import flask_mail
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from form_manager import config, forms, utils
+from form_manager import config, forms, user, utils
 
 mail = flask_mail.Mail()
 
@@ -46,6 +46,7 @@ def create_app():
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
     app.register_blueprint(forms.blueprint, url_prefix="/api/v1/form")
+    app.register_blueprint(user.blueprint, url_prefix="/api/v1/user")
         
     @app.route("/api/v1/heartbeat/", methods=["GET"])
     def heartbeat():
