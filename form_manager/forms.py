@@ -8,7 +8,20 @@ blueprint = flask.Blueprint("forms", __name__)  # pylint: disable=invalid-name
 
 @blueprint.route("", methods=["GET"])
 def list_forms():
-    form_info = flask.g.db["forms"].find_one({"identifier": form_identifier})
+    form_info = list(flask.g.db["forms"].find({"owner": flask.session["email"]}, {"_id": 0}))
+    flask.current_app.logger.error(form_info)
+    return flask.jsonify({"forms": form_info,
+                          "url": flask.url_for("forms.list_forms", _external=True)})
+
+
+@blueprint.route("", methods=["POST"])
+def add_form():
+    indata = flask.request.json
+    if indata.get("identifier"):
+        if flask.g.db["forms"].find_one({"identifier": indata["identifier"]}):
+            flask.abort(status=400)
+    indata["owner"] = flask.session["email"]
+    flask.g.db["forms"].insert_one(indata)
     return flask.Response(status=200)
 
 
@@ -37,18 +50,10 @@ def receive_response(form_identifier:str):
     return flask.Response(status=200)
 
 
-@blueprint.route("/responses/<entry>/", methods=["GET"])
-def get_entry_list(entry):
-    args = dict(flask.request.args)
-    token = args.get("token")
-    if not token or token not in flask.current_app.config.get("getToken"):
-        return flask.Response(status=401)
-    if entry == "add_biobank":
-        hits = list(flask.g.db["responsesAddBiobank"].find({}, {"_id": 0}))
-    elif entry == "add_collection":
-        hits = list(flask.g.db["responsesAddCollection"].find({}, {"_id": 0}))
-    elif entry == "suggestion":
-        hits = list(flask.g.db["suggestions"].find({}, {"_id": 0}))
-    else:
-        return flask.Response(status=404)
-    return flask.jsonify(hits)
+@blueprint.route("/<identifier>/responses", methods=["GET"])
+def get_responses(identifier):
+    responses = list(flask.g.db[f"form_{identifier}"].find())
+    return flask.jsonify({
+        "responses": responses,
+        "url": flask.url_for("forms.get_responses", _external=True)
+    })

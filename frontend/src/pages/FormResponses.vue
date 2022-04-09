@@ -24,25 +24,31 @@ import { defineComponent } from 'vue'
 import axios from 'axios'
 
 export default defineComponent({
-  name: 'IndexPage',
-  data () {
-    return {
-      email: "",
-      error: false,
+  name: 'FormResponses',
+  props: {
+    identifier: {
+      type: String,
+      required: true,
     }
   },
+
+  data () {
+    return {
+      responses: []
+    }
+  },
+
   methods: {
-    doLogin() {
+    getEntry () {
       axios
-	.post('/api/v1/user/login', {"email": this.email})
+	.get('/api/v1/form/' + this.identifier + 'responses')
         .then((response) => {
-	  this.$router.push({ name: 'FormBrowser'});
-      })
+	  this.responses = response.data['responses']
+	})
       .catch((err) => {
 	this.error = true;
       });
-
-    }
+    },
   }
 })
 </script>
