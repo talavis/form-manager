@@ -52,8 +52,8 @@ def receive_response(form_identifier:str):
 
 @blueprint.route("/<identifier>/responses", methods=["GET"])
 def get_responses(identifier):
-    responses = list(flask.g.db[f"form_{identifier}"].find())
+    responses = list(flask.g.db[f"form_{identifier}"].find(projection={"_id": 0}))
     return flask.jsonify({
         "responses": responses,
-        "url": flask.url_for("forms.get_responses", _external=True)
+        "url": flask.url_for("forms.get_responses", identifier=identifier, _external=True)
     })

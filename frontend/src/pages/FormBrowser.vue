@@ -76,7 +76,7 @@ export default defineComponent({
       });
     },
     gotoEntry(evt, row, index) {
-      this.$router.push({name: 'FormBrowser', form: row.identifier});
+      this.$router.push({name: 'FormResponses', params: {identifier: row.identifier}});
     }
   },
 
