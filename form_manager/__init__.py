@@ -6,10 +6,9 @@ import flask
 import flask_mail
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from form_manager import config, forms, user, utils
-
 mail = flask_mail.Mail()
 
+from form_manager import config, forms, user, utils
 
 def create_app():
     """Construct the core application."""

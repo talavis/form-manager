@@ -60,6 +60,19 @@
 	</q-item-section>
       </q-expansion-item>
     </q-list>
+    <q-card class="my-card" flat bordered>
+      <q-card-section>
+	<q-checkbox v-model="showJson" label="Show JSON" />
+      </q-card-section>
+      <q-slide-transition>
+        <div v-show="showJson">
+          <q-separator />
+          <q-card-section class="text-subitle2">
+            {{ responses }}
+          </q-card-section>
+        </div>
+      </q-slide-transition>
+    </q-card>
   </div>
 </q-page>
 </template>
@@ -94,10 +107,11 @@ export default defineComponent({
 	}
 	else if (this.listingType === 'question') {
 	  outData = {};
-	  if (this.rawResponses.length > 0)
-	    outData.timestamp = [];
+	  console.log(Object.keys(this.rawResponses[0]))
+	  console.log(Object.keys(this.rawResponses[0]['response']))
 	  for (let entry of this.rawResponses) {
 	    for (let key in entry.response) {
+	      console.log(key)
 	      if (key in outData) {
 		outData[key].push(entry.response[key]);
 	      }
@@ -105,11 +119,8 @@ export default defineComponent({
 		outData[key] = [entry.response[key]];
 	      }
 	    }
-	    outData.timestamp.push(entry.timestamp)
 	  }
 	}
-	console.log(this.listingType)
-	console.log(outData)
 	return outData;
       },
     },
@@ -118,6 +129,7 @@ export default defineComponent({
   data () {
     return {
       rawResponses: [],
+      showJson: false,
       listingType: 'submission'
     }
   },

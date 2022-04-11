@@ -1,7 +1,9 @@
 """Endpoints related to forms."""
 import flask
+import flask_mail
 
-from form_manager import utils
+from . import mail
+from . import utils
 
 blueprint = flask.Blueprint("forms", __name__)  # pylint: disable=invalid-name
 
@@ -38,15 +40,29 @@ def receive_response(form_identifier:str):
         return flask.abort(status=400)
     form_response = dict(flask.request.form)
 
+    if form_info.get("recaptcha"):
+        if not utils.verify_recaptcha(
+                form_info.get("recaptcha_secret"),
+                form_response.get("g-recaptcha-response")
+        ):
+            flask.abort(status=400)
+
+    if form_info.get("email"):        
+        mail.send(
+            flask_mail.Message(
+                f"Form from {form_info.get('title')}",
+                body=form_response,
+                recipients=form_info.get("email_recipients", [])
+            )
+        )
+    
     to_add = {
         "response": form_response,
         "timestamp": utils.make_timestamp()
     }
     
     flask.g.db[f"form_{form_identifier}"].insert_one(to_add)
-
-    if form_info.get("target_email"):
-        utils.send_email()
+    
     return flask.Response(status=200)
 
 

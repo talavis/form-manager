@@ -6,7 +6,6 @@
   <q-card style="width: 400em">
     <q-card-section>
       <q-list>
-        <q-item-label caption>User Data</q-item-label>
         <q-item>
           <q-item-section>
             <q-input
@@ -24,6 +23,12 @@
               v-model="formData.identifier"/>
           </q-item-section>
         </q-item>
+	<q-item>
+	  <q-item-section>
+	    <q-checkbox label="Send email" v-model="formData.email"/>
+	    <q-checkbox label="Use recaptcha" v-model="formData.recaptcha"/>
+          </q-item-section>
+	</q-item>
       </q-list>
     </q-card-section>
 
@@ -68,6 +73,8 @@ export default defineComponent({
       formData: {
 	title: '',
 	identifier: '',
+	email: false,
+	recaptcha: false,
       },
       saveError: false,
       saveWaiting: false,
@@ -86,10 +93,11 @@ export default defineComponent({
 	.post('/api/v1/form', this.formData)
         .then((response) => {
 	  this.updateVisibility(false);;
-      })
-      .catch((err) => {
-	this.saveError = true;
-      });
+	})
+	.catch((err) => {
+	  this.saveError = true;
+	})
+	.finally(() => this.saveWaiting = false);
     },
   }
 })

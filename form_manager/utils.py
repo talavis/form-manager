@@ -76,7 +76,7 @@ def verify_recaptcha(secret: str, response: str):
                                   "secret": secret,
                                   "response": response
                               })
-    return bool(rec_check.json()["success"])
+    return bool(rec_check.json().get("success"))
 
 
 def send_email():
