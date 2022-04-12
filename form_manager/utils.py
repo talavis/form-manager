@@ -71,11 +71,9 @@ def verify_recaptcha(secret: str, response: str):
     Returns:
         bool: Whether the check passed
     """
-    rec_check = requests.post("https://www.google.com/recaptcha/api/siteverify",
-                              {
-                                  "secret": secret,
-                                  "response": response
-                              })
+    rec_check = requests.post(
+        "https://www.google.com/recaptcha/api/siteverify", {"secret": secret, "response": response}
+    )
     return bool(rec_check.json().get("success"))
 
 

@@ -1,14 +1,18 @@
 """Initialize Flask app."""
 
 import logging
+import os
 
 import flask
 import flask_mail
+from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 mail = flask_mail.Mail()
+oauth = OAuth()
 
 from form_manager import config, forms, user, utils
+
 
 def create_app():
     """Construct the core application."""
@@ -41,14 +45,40 @@ def create_app():
     mail.init_app(app)
     app.extensions["mail"].debug = 0
 
+    oauth.init_app(app)
+    oauth.register(
+        "oidc_entry",
+        client_id=app.config.get("OIDC_ID"),
+        client_secret=app.config.get("OIDC_SECRET"),
+        server_metadata_url=app.config.get("OIDC_METADATA"),
+        client_kwargs={"scope": "openid profile email roles"},
+    )
+
     if app.config["REVERSE_PROXY"]:
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
     app.register_blueprint(forms.blueprint, url_prefix="/api/v1/form")
     app.register_blueprint(user.blueprint, url_prefix="/api/v1/user")
-        
+
     @app.route("/api/v1/heartbeat/", methods=["GET"])
     def heartbeat():
         return flask.Response(status=200)
 
+    if app.env == "development":
+        activate_dev(app)
+
     return app
+
+
+def activate_dev(app):
+    """
+    Activate endpoints for development.
+
+    Never activate in a production environment
+    """
+
+    @app.route("/api/v1/development/login/<email>")
+    def dev_login(email: str):
+        """Force login as email."""
+        flask.session["email"] = email
+        return flask.Response(status=200)
