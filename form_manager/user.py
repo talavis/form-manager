@@ -1,6 +1,8 @@
 """Endpoints related to auth."""
+
 import flask
 
+from . import oauth
 
 blueprint = flask.Blueprint("user", __name__)  # pylint: disable=invalid-name
 
