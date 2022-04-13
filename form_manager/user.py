@@ -7,6 +7,12 @@ from . import oauth
 blueprint = flask.Blueprint("user", __name__)  # pylint: disable=invalid-name
 
 
+@blueprint.route("/me")
+def user_info():
+    """Perform a login using OpenID Connect."""
+    return flask.jsonify({"user": flask.session.get("email", "")})
+
+
 @blueprint.route("/login")
 def oidc_login():
     """Perform a login using OpenID Connect."""
@@ -23,7 +29,8 @@ def oidc_authorize():
     return flask.redirect("/")
 
 
-@blueprint.route("/logout", methods=["POST"])
+@blueprint.route("/logout")
 def logout():
     flask.session.clear()
     flask.session.permanent = False
+    return flask.redirect("/")

@@ -16,7 +16,7 @@ from form_manager import config, forms, user, utils
 
 def create_app():
     """Construct the core application."""
-    app = flask.Flask(__name__, instance_relative_config=False)
+    app = flask.Flask("form_manager")
     app.config.from_object("form_manager.config.Config")
     app.config.from_envvar("CONFIG_FILE", silent=True)
 

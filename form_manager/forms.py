@@ -10,7 +10,7 @@ blueprint = flask.Blueprint("forms", __name__)  # pylint: disable=invalid-name
 
 @blueprint.route("", methods=["GET"])
 def list_forms():
-    form_info = list(flask.g.db["forms"].find({"owner": flask.session["email"]}, {"_id": 0}))
+    form_info = list(flask.g.db["forms"].find({"owner": flask.session.get("email")}, {"_id": 0}))
     flask.current_app.logger.error(form_info)
     return flask.jsonify(
         {"forms": form_info, "url": flask.url_for("forms.list_forms", _external=True)}
