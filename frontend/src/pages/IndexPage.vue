@@ -1,21 +1,6 @@
 <template>
 <q-page class="flex flex-center">
-  <q-card class="bg-grey-2">
-    <q-card-section class="bg-primary text-white">
-      <div class="text-h6">Form Manager Login</div>
-    </q-card-section>
-    <q-form
-      @submit="doLogin"
-      class="q-gutter-md"
-    >
-      <q-card-section class="rows">	
-	<q-input name="email" v-model="email" label="Email" />
-      </q-card-section>
-      <q-card-actions align="right">
-	<q-btn color="primary" label="Submit" type="submit"/>
-      </q-card-actions>
-    </q-form>
-  </q-card>
+  <q-btn label="login" type="a" href="/api/v1/user/login" text-color="primary"/>
 </q-page>
 </template>
 
