@@ -28,15 +28,26 @@ export default route(function (/* { store, ssrContext } */) {
   })
 
   Router.beforeEach((to, from, next) => {
-    console.log(to)
     const store = useUserStore();
     if (!store.loaded) {
       store.getUserInfo()
-        .then(() => { store.email === '' && to.name !== 'Login' ? next({name: 'Login'}) : next() })
+        .then(function () {
+	  if (store.email === '' && to.meta.loginRequired)
+	    next({name: 'Login'})
+	  else if (to.name === 'Login')
+	    next({name: 'FormBrowser'})
+	  else
+	    next()
+	})
         .catch(() => next({name: 'Error', params: {message: 'Unable to get response from backend'}}));
     }
     else {
-      store.email === '' && to.name !== 'Login' ? next({name: 'Login'}) : next()
+      if (store.email === '' && to.meta.loginRequired)
+	next({name: 'Login'})
+      else if (to.name === 'Login')
+	next({name: 'FormBrowser'})
+      else
+	next()
     }
   })
 
