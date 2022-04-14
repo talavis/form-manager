@@ -1,7 +1,7 @@
 <template>
 <q-page class="flex flex-center">
   <q-btn
-    label="Login to Form Manager"
+    label="Login"
     icon="login"
     type="a"
     href="/api/v1/user/login"
