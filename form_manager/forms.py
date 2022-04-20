@@ -68,13 +68,13 @@ def get_form_info(identifier: str):
     Args:
         identifier (str): The form identifier.
     """
-    entry = flask.g.db["forms"].find_one({"identifier": identifier})
+    entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
     if not entry:
         flask.abort(status=404)
     if flask.session["email"] != entry["owner"]:
         flask.abort(status=403)
     return flask.jsonify(
-        {"form": entry, "url": flask.url_for("forms.get_form_info", _external=True)}
+        {"form": entry, "url": flask.url_for("forms.get_form_info", identifier=identifier, _external=True)}
     )
 
 
@@ -94,7 +94,8 @@ def add_form():
     entry.update(indata)
     entry["owner"] = flask.session["email"]
     flask.g.db["forms"].insert_one(entry)
-    return flask.jsonify({"identifier": entry["identifier"], "url": flask.url_for("forms.add_form", _external=True)})
+    return flask.jsonify({"identifier": entry["identifier"],
+                          "url": flask.url_for("forms.add_form", _external=True)})
 
 
 @blueprint.route("/<identifier>", methods=["PATCH"])
