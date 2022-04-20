@@ -32,9 +32,13 @@ export default route(function (/* { store, ssrContext } */) {
     if (!store.loaded) {
       store.getUserInfo()
         .then(function () {
-	  if (store.email === '' && to.meta.loginRequired)
-	    next({name: 'Login'})
-	  else if (to.name === 'Login')
+	  if (store.email === '') {
+	    if (to.meta.loginRequired)
+	      next({name: 'Login'})
+	    else
+	      next()
+	  }
+	  else if (to.name === 'Login')	    
 	    next({name: 'FormBrowser'})
 	  else
 	    next()
@@ -42,8 +46,12 @@ export default route(function (/* { store, ssrContext } */) {
         .catch(() => next({name: 'Error', params: {message: 'Unable to get response from backend'}}));
     }
     else {
-      if (store.email === '' && to.meta.loginRequired)
-	next({name: 'Login'})
+      if (store.email === '') {
+	if (to.meta.loginRequired)
+	  next({name: 'Login'})
+	else
+	  next()
+      }
       else if (to.name === 'Login')
 	next({name: 'FormBrowser'})
       else
