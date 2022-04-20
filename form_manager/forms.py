@@ -159,11 +159,13 @@ def receive_response(identifier: str):
         ):
             flask.abort(status=400)
 
+    flask.current_app.logger.error(dict(flask.request.headers))
+            
     if form_info.get("email_recipients"):
         mail.send(
             flask_mail.Message(
                 f"Form from {form_info.get('title')}",
-                body=form_response,
+                body=str(form_response),
                 recipients=form_info["email_recipients"],
             )
         )
@@ -172,6 +174,7 @@ def receive_response(identifier: str):
         "response": form_response,
         "timestamp": utils.make_timestamp(),
         "identifier": identifier,
+        "origin": flask.request.environ.get('HTTP_ORIGIN', '-')
     }
 
     flask.g.db[f"responses"].insert_one(to_add)
@@ -188,11 +191,15 @@ def get_responses(identifier):
     Args:
         identifier (str): The form identifier.
     """
-
     form_info = flask.g.db["forms"].find_one({"identifier": identifier})
+    if not form_info:
+        flask.abort(status=404)
     if flask.session["email"] != form_info["owner"]:
         flask.abort(status=403)
-    responses = list(flask.g.db["responses"].find({"identifier": identifier}, {"_id": 0}))
+    responses = list(flask.g.db["responses"].find({"identifier": identifier}))
+    for response in responses:
+        response["id"] = str(response["_id"])
+        del response["_id"]
     return flask.jsonify(
         {
             "responses": responses,
