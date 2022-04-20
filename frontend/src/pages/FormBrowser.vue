@@ -66,7 +66,7 @@
         <q-td key="sendEmail" :props="props">
           <q-icon
 	    :name="props.row.email.length ? 'check_circle' : 'cancel'"
-	    :color="props.row.email.length ? 'secondary' : 'accent'"
+	    :color="props.row.email.length ? 'accent' : 'secondary'"
 	    size="1.5em">
           </q-icon>
         </q-td>
