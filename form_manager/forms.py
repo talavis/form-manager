@@ -1,4 +1,6 @@
 """Endpoints related to forms."""
+import json
+
 import flask
 import flask_mail
 
@@ -159,13 +161,11 @@ def receive_response(identifier: str):
         ):
             flask.abort(status=400)
 
-    flask.current_app.logger.error(dict(flask.request.headers))
-            
     if form_info.get("email_recipients"):
         mail.send(
             flask_mail.Message(
                 f"Form from {form_info.get('title')}",
-                body=str(form_response),
+                body=json.dumps(form_response),
                 recipients=form_info["email_recipients"],
             )
         )
