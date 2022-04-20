@@ -136,7 +136,7 @@ def delete_form(identifier: str):
     if flask.session["email"] != entry["owner"]:
         flask.abort(status=403)
     flask.g.db["forms"].delete_one(entry)
-    flask.g.db["responses"].delete_many({"identifier": entry[identifier]})
+    flask.g.db["responses"].delete_many({"identifier": entry["identifier"]})
     return flask.Response(status=200)
 
 
