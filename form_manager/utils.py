@@ -1,6 +1,7 @@
 """General helper functions."""
-
 import datetime
+import functools
+import secrets
 
 import flask
 import pymongo
@@ -77,5 +78,16 @@ def verify_recaptcha(secret: str, response: str):
     return bool(rec_check.json().get("success"))
 
 
-def send_email():
-    pass
+def login_required(func):
+    """Check whether user is logged in, ottherwise return 403."""
+    @functools.wraps(func)
+    def inner(*args, **kwargs):
+        if not flask.session.get("email"):
+            flask.abort(status=403)
+        return func(*args, **kwargs)
+    return inner
+
+
+def generate_id():
+    """Generate an identifier for a form entry."""
+    return secrets.token_urlsafe(12)

@@ -32,3 +32,5 @@ class Config(object):
     MAIL_DEFAULT_SENDER = ("Form Manager", "forms@example.com")
 
     REVERSE_PROXY = False  # Behind a reverse proxy, use X_Forwarded-For to get the ip
+
+    ENV = "development"

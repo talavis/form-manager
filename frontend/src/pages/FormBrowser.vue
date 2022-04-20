@@ -1,28 +1,55 @@
 <template>
 <q-page class="flex flex-center">
-  <q-card flat>
-    <q-card-section>
   <q-table
     title="Forms"
     :rows="entries"
     :columns="columns"
-    row-key="id"
+    row-key="identifier"
     :pagination="pagination"
     :filter="filter"
     :loading="loading"
     no-data-label="No entries found"
     :no-results-label="filter + ' does not match any entries'"
-    @row-click="gotoEntry"
     >
-    <template v-slot:top-right>
+    <template #top-right>
+      <q-btn
+	class="q-mx-sm"
+	dense
+	round
+	outline
+	icon="add"
+	@click="addForm" />      
       <q-input rounded outlined dense debounce="300" v-model="filter" placeholder="Search">
-        <template v-slot:append>
+        <template #append>
           <q-icon name="search" />
         </template>
       </q-input>
     </template>
-    <template v-slot:body="props">
+    <template #header="props">
       <q-tr :props="props">
+	<q-th auto-width />
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          >
+          {{ col.label }}
+        </q-th>
+	<q-th auto-width />
+      </q-tr>
+    </template>
+    <template #body="props">
+      <q-tr :props="props">
+	<q-td auto-width>
+          <q-btn
+            @click="expandItem(props)"
+            color="primary"
+            :icon="props.expand ? 'expand_less' : 'expand_more'"
+            size="sm"
+            round
+            dense
+            />
+	</q-td>
         <q-td key="title" :props="props">
           {{ props.row.title }}
         </q-td>
@@ -31,53 +58,125 @@
         </q-td>
         <q-td key="recaptcha" :props="props">
           <q-icon
-	    :name="props.row.recaptcha ? 'check_circle' : 'cancel'"
-	    :color="props.row.recaptcha ? 'positive' : 'negative'"
+	    :name="props.row.recaptcha_secret.length ? 'check_circle' : 'cancel'"
+	    :color="props.row.recaptcha_secret.length ? 'positive' : 'negative'"
 	    size="1.5em">
           </q-icon>
         </q-td>
         <q-td key="sendEmail" :props="props">
           <q-icon
-	    :name="props.row.email ? 'check_circle' : 'cancel'"
-	    :color="props.row.email ? 'primary' : 'secondary'"
+	    :name="props.row.email.length ? 'check_circle' : 'cancel'"
+	    :color="props.row.email.length ? 'secondary' : 'accent'"
 	    size="1.5em">
           </q-icon>
         </q-td>
+	<q-td auto-width>
+          <q-btn
+            color="primary"
+            icon="account_tree"
+            size="sm"
+            round
+            dense
+	    @click=gotoEntry(props.row.identifier)
+            />
+	</q-td>
       </q-tr>
-      <q-tr v-show="props.expand" :props="props">
+      <q-tr v-if="props.expand" :props="props">
         <q-td colspan="100%">
-          <div class="text-left">This is expand slot for row above: {{ props.row.name }}.</div>
+	  <q-list dense>
+            <q-item>
+              <q-item-section>
+		<q-input
+		  dense
+		  label="Title"
+		  v-model="editData[props.key].title"
+		  />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+		<q-input
+		  dense
+		  label="Email"
+		  v-model="editData[props.key].email"
+		  />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+		<q-input
+		  dense
+		  label="Recaptcha secret"
+		  v-model="editData[props.key].recaptcha_secret"
+		  />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+		<q-input
+		  dense
+		  label="Redirect to"
+		  v-model="editData[props.key].redirect"
+		  />
+              </q-item-section>
+            </q-item>
+	    <q-item>
+	      <q-item-section>
+		<div class="items-end">
+		  <q-btn
+		    flat
+		    round
+		    dense
+		    size="md"
+		    icon="check"
+		    color="positive"
+		    :loading="editData[props.key].saving"
+		    @click="saveEdit(props)" />
+		  <q-btn
+		    flat
+		    round
+		    dense
+		    bg-color="positive"
+		    size="md"
+		    icon="cancel"
+		    color="negative"
+		    @click="cancelEdit(props)" />
+		  <q-btn
+		    flat
+		    round
+		    dense
+		    class="q-ml-md"
+		    bg-color="positive"
+		    size="md"
+		    icon="delete"
+		    color="negative"
+		    @click="deleteForm(props)" />
+		  <span v-show="editData[props.key].saveError" class="text-negative">Save failed</span>
+		</div>
+	      </q-item-section>
+	    </q-item>
+	  </q-list>
         </q-td>
       </q-tr>
     </template>
   </q-table>
-  </q-card-section>
-    <q-card-section>
-      <q-btn icon="add" @click="addDialogOpen = true"/>
-      </q-card-section>
-  </q-card>
-  <form-edit-dialog v-model="addDialogOpen" />
 </q-page>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
-import EditFormInfo from 'components/EditFormInfo.vue'
 import axios from 'axios'
 
 export default defineComponent({
   name: 'FormBrowser',
-  components: {
-    'form-edit-dialog': EditFormInfo
-  },
   data () {
     return {
       entries: [],
+      editData: {},
       filter: '',
-      addDialogOpen: false,
-      pageAbout: '',
-      pageNew: '',
       loading: false,
+      loadError: false,
+      saveError: false,
       pagination: {
         rowsPerPage: 20
       },
@@ -116,18 +215,80 @@ export default defineComponent({
   },
   methods: {
     getEntries () {
+      this.loading = true;
       axios
 	.get('/api/v1/form')
         .then((response) => {
 	  this.entries = response.data['forms']
+	  for (let entry of this.entries) {
+	    if (entry.email_recipients.length > 0)
+	      entry.email = entry.email_recipients[0];
+	    else
+      entry.email = "";
+	    delete entry.email_recipients;
+	    
+	  }
 	})
       .catch((err) => {
-	this.error = true;
-      });
+	this.loadError = true;
+      })
+      .finally(() => this.loading = false);
     },
-    gotoEntry(evt, row, index) {
-      this.$router.push({name: 'FormResponses', params: {identifier: row.identifier}});
-    }
+    gotoEntry(identifier) {
+      this.$router.push({name: 'FormResponses', params: {identifier: identifier}});
+    },
+    deleteForm(entry) {
+      axios
+	.delete('/api/v1/form/' + entry.row.identifier)
+        .then(() => {
+	  entry.expand = false;
+	  delete this.editData[entry.row.identifier];
+	  this.getEntries();
+	})
+    },
+    addForm() {
+      axios
+	.post('/api/v1/form')
+        .then(() => this.getEntries())
+    },
+    expandItem(entry) {
+      entry.expand = !entry.expand;
+      if (!(entry.key in this.editData)) {
+	this.editData[entry.key] = {
+	  title: entry.row.title,
+	  recaptcha_secret: entry.row.recaptcha_secret,
+	  email: entry.row.email,
+	  redirect: entry.row.redirect,
+	  saving: false,
+	  saveError: false,
+	}
+      }
+    },
+    saveEdit(entry) {
+      this.saveError = false;
+      this.editData[entry.key].saving = true;
+      this.editData[entry.key].saveError = false;
+      let outgoing = JSON.parse(JSON.stringify(this.editData[entry.key]));
+      console.log(outgoing)
+      outgoing.email_recipients = [outgoing.email];
+      delete outgoing.email;
+      delete outgoing.saving;
+      delete outgoing.saveError;
+      axios
+	.patch('/api/v1/form/' + entry.row.identifier, outgoing)
+        .then((response) => {
+	  entry.expand = false;
+	  delete this.editData[entry.key];
+	  this.getEntries();
+	  })
+	.catch((err) => {
+	  this.editData[entry.key].saveError = true;
+	});
+    },
+    cancelEdit(entry) {
+      entry.expand = false;
+      delete this.editData[entry.key];
+    },
   },
 
   mounted () {
