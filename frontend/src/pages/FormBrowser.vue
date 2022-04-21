@@ -70,6 +70,13 @@
 	    size="1.5em">
           </q-icon>
         </q-td>
+        <q-td key="redirect" :props="props">
+          <q-icon
+	    :name="props.row.redirect.length ? 'check_circle' : 'cancel'"
+	    :color="props.row.redirect.length ? 'accent' : 'secondary'"
+	    size="1.5em">
+          </q-icon>
+        </q-td>
 	<q-td auto-width>
           <q-btn
             color="primary"
@@ -207,6 +214,13 @@ export default defineComponent({
           name: 'sendEmail',
           label: 'Send email',
           field: 'email',
+          required: true,
+          sortable: true,
+        },
+        {
+          name: 'redirect',
+          label: 'Redirect',
+          field: 'redirect',
           required: true,
           sortable: true,
         },
