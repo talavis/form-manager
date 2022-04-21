@@ -5,6 +5,7 @@ import secrets
 
 import flask
 import pymongo
+import requests
 
 
 def prepare_db(db_config: dict) -> tuple:

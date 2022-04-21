@@ -24,7 +24,6 @@ def oidc_login():
 def oidc_authorize():
     """Authorize a login using OpenID Connect (e.g. Elixir AAI)."""
     token = oauth.oidc_entry.authorize_access_token()
-    flask.current_app.logger.critical(token)
     flask.session["email"] = token.get("userinfo", {}).get("email")
     flask.session.permanent = True
     return flask.redirect("/")
