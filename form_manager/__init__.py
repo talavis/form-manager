@@ -11,7 +11,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 mail = flask_mail.Mail()
 oauth = OAuth()
 
-from form_manager import config, forms, user, utils
+from form_manager import config, forms, user, utils  # to avoid issues with circular import 
 
 
 def create_app():

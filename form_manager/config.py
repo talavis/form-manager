@@ -1,6 +1,5 @@
 """Config for DDS setup."""
 import os
-import datetime
 
 
 class Config(object):

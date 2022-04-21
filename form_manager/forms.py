@@ -166,7 +166,7 @@ def receive_response(identifier: str):
         redirect_args = ""
 
     if form_info.get("recaptcha_secret"):
-        if not "g-recaptcha-response" in form_response or not utils.verify_recaptcha(
+        if "g-recaptcha-response" not in form_response or not utils.verify_recaptcha(
             form_info["recaptcha_secret"], form_response["g-recaptcha-response"]
         ):
             return flask.redirect(f"/failure{redirect_args}")
@@ -188,7 +188,7 @@ def receive_response(identifier: str):
         "origin": flask.request.environ.get("HTTP_ORIGIN", "-"),
     }
 
-    flask.g.db[f"responses"].insert_one(to_add)
+    flask.g.db["responses"].insert_one(to_add)
 
     return flask.redirect(f"/success{redirect_args}")
 
