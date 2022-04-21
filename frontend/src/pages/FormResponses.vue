@@ -3,93 +3,11 @@
   <q-btn
     label="Back to Form Browser"
     icon="arrow_back"
-    class="q-my-xl"
+    class="q-my-lg"
     color="primary"
     :to="{ name: 'FormBrowser' }"
     />
   
-  <q-card>
-    <q-card-section>
-      <div class="text-h6">{{ formInfo.title }}</div>
-    </q-card-section>
-    
-    <q-tabs v-model="currentTab" class="text-primary">
-      <q-tab label="By submission" name="submission" />
-      <q-tab label="By question" name="question" />
-    </q-tabs>
-    
-    <q-separator />
-    
-    <q-tab-panels v-model="currentTab" animated>
-      <q-tab-panel name="submission">
-	<q-table
-	  flat
-	  :rows="rawResponses"
-	  :columns="columnsSubmission"
-	  :pagination="submissionPagination"
-	  row-key="id"
-	  >
-	  <template #header="props">
-	    <q-tr :props="props">
-	      <q-th auto-width />
-              <q-th
-		v-for="col in props.cols"
-		:key="col.name"
-		:props="props"
-		>
-		{{ col.label }}
-              </q-th>
-	    </q-tr>
-	  </template>
-
-	  <template #body="props">
-	    <q-tr :props="props">
-	      <q-td auto-width>
-		<q-btn
-		  @click="props.expand = !props.expand"
-		  color="primary"
-		  :icon="props.expand ? 'expand_less' : 'expand_more'"
-		  size="sm"
-		  round
-		  dense
-		  />
-	      </q-td>
-              <q-td
-		v-for="col in props.cols"
-		:key="col.name"
-		:props="props"
-		>
-		{{ col.value }}
-              </q-td>
-	    </q-tr>
-	    <q-tr v-show="props.expand" :props="props">
-              <q-td colspan="100%">
-		<q-list>
-		  <q-item
-		    v-for="value, key in props.row"
-		    :key="key"
-		    >
-		    <q-item-section>
-		      <div class="flex">
-			<q-chip :label="key" color="primary" text-color="white" />
-			<div>{{ value }}</div>
-		      </div>
-		    </q-item-section>
-		  </q-item>
-		</q-list>
-              </q-td>
-	    </q-tr>
-	  </template>
-	</q-table>
-      </q-tab-panel>
-      
-      <q-tab-panel name="question">
-        With so much content to display at once, and often so little screen real-estate,
-        Cards have fast become the design pattern of choice for many companies, including
-        the likes of Google and Twitter.
-      </q-tab-panel>
-    </q-tab-panels>
-  </q-card>
   <q-table
     class="q-my-lg"
     :title="formInfo.title"
@@ -179,25 +97,21 @@
     </template>
   </q-table>
 
-  <q-card class="my-card" flat bordered>
-      <q-card-section>
-	<q-checkbox v-model="showJson" label="Show JSON" />
-      </q-card-section>
-      <q-slide-transition>
-        <div v-show="showJson">
-          <q-separator />
-          <q-card-section class="text-subtitle2">
-	    
-          </q-card-section>
-        </div>
-      </q-slide-transition>
-    </q-card>
+
+  <q-btn
+    label="Copy JSON to clipboard"
+    icon="content_copy"
+    class="q-my-lg"
+    color="secondary"
+    @click="jsonToClipboard(listingType === 'submission' ? rawResponses : questions)"
+    />
 </q-page>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 import axios from 'axios'
+import { copyToClipboard } from 'quasar'
 
 export default defineComponent({
   name: 'FormResponses',
@@ -275,18 +189,31 @@ export default defineComponent({
         },
 
       ],
-      filter: '',
       rawResponses: [],
       responsesLoading: false,
       infoLoading: false,
-      showJson: false,
       responsesError: false,
       infoError: false,
-      listingType: 'submission'
+      listingType: 'submission',
+      showCopyInfo: false,
     }
   },
 
   methods: {
+    jsonToClipboard (responseData) {
+      copyToClipboard(JSON.stringify(responseData))
+	.then(() => {
+	  // success!
+	})
+	.catch(() => {
+	  // fail
+	})
+      this.$q.notify({
+        group: false,
+        message: 'JSON copied to clipboard.',
+        color: 'primary'
+      })
+    },
     getEntry () {
       this.responsesLoading = true;
       this.responsesError = false;
