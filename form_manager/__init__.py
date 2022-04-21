@@ -5,9 +5,11 @@ import os
 
 import flask
 import flask_mail
+import flask_talisman
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+talisman = flask_talisman.Talisman()
 mail = flask_mail.Mail()
 oauth = OAuth()
 
@@ -53,6 +55,8 @@ def create_app():
         server_metadata_url=app.config.get("OIDC_METADATA"),
         client_kwargs={"scope": "openid profile email roles"},
     )
+
+    talisman.init_app(app)
 
     if app.config["REVERSE_PROXY"]:
         app.wsgi_app = ProxyFix(app.wsgi_app)

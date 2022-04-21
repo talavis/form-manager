@@ -1,6 +1,7 @@
+authlib
 Flask
 Flask-Cors
 Flask-Mail
+flask-talisman
 pymongo
-authlib
 requests
