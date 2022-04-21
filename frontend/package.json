@@ -1,7 +1,7 @@
 {
   "name": "form_manager",
   "version": "0.0.1",
-  "description": "A system for handling form input",
+  "description": "A system for handling form submissions",
   "productName": "Form Manager",
   "author": "Linus Östberg <linus.ostberg@scilifelab.uu.se>",
   "private": true,
