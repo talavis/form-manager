@@ -3,6 +3,7 @@ import json
 
 import flask
 import flask_mail
+import requests
 
 from . import mail
 from . import utils
