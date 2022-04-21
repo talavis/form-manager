@@ -1,4 +1,4 @@
-"""Help to start the app from Gunicorn."
+"""Help to start the app from Gunicorn."""
 
 from . import create_app
 
