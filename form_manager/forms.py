@@ -9,6 +9,7 @@ from . import utils
 
 blueprint = flask.Blueprint("forms", __name__)  # pylint: disable=invalid-name
 
+
 def form():
     """The data structure for a form"""
     return {
@@ -76,7 +77,10 @@ def get_form_info(identifier: str):
     if flask.session["email"] != entry["owner"]:
         flask.abort(status=403)
     return flask.jsonify(
-        {"form": entry, "url": flask.url_for("forms.get_form_info", identifier=identifier, _external=True)}
+        {
+            "form": entry,
+            "url": flask.url_for("forms.get_form_info", identifier=identifier, _external=True),
+        }
     )
 
 
@@ -96,8 +100,9 @@ def add_form():
     entry.update(indata)
     entry["owner"] = flask.session["email"]
     flask.g.db["forms"].insert_one(entry)
-    return flask.jsonify({"identifier": entry["identifier"],
-                          "url": flask.url_for("forms.add_form", _external=True)})
+    return flask.jsonify(
+        {"identifier": entry["identifier"], "url": flask.url_for("forms.add_form", _external=True)}
+    )
 
 
 @blueprint.route("/<identifier>", methods=["PATCH"])
@@ -159,13 +164,10 @@ def receive_response(identifier: str):
         redirect_args = f"?redirect={form_info['redirect']}"
     else:
         redirect_args = ""
-    
+
     if form_info.get("recaptcha_secret"):
-        if (
-                not "g-recaptcha-response" in form_response or 
-                not utils.verify_recaptcha(
-                    form_info["recaptcha_secret"], form_response["g-recaptcha-response"]
-                )
+        if not "g-recaptcha-response" in form_response or not utils.verify_recaptcha(
+            form_info["recaptcha_secret"], form_response["g-recaptcha-response"]
         ):
             return flask.redirect(f"/failure{redirect_args}")
         del form_response["g-recaptcha-response"]
@@ -183,7 +185,7 @@ def receive_response(identifier: str):
         "response": form_response,
         "timestamp": utils.make_timestamp(),
         "identifier": identifier,
-        "origin": flask.request.environ.get('HTTP_ORIGIN', '-')
+        "origin": flask.request.environ.get("HTTP_ORIGIN", "-"),
     }
 
     flask.g.db[f"responses"].insert_one(to_add)
@@ -208,7 +210,9 @@ def get_form_url(identifier: str):
     return flask.jsonify(
         {
             "method": "POST",
-            "submission_url": flask.url_for("forms.receive_response", identifier=identifier, _external=True)
+            "submission_url": flask.url_for(
+                "forms.receive_response", identifier=identifier, _external=True
+            ),
         }
     )
 

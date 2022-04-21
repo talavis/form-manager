@@ -81,11 +81,13 @@ def verify_recaptcha(secret: str, response: str):
 
 def login_required(func):
     """Check whether user is logged in, ottherwise return 403."""
+
     @functools.wraps(func)
     def inner(*args, **kwargs):
         if not flask.session.get("email"):
             flask.abort(status=403)
         return func(*args, **kwargs)
+
     return inner
 
 
