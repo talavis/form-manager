@@ -187,6 +187,28 @@ def receive_response(identifier: str):
     return flask.redirect(f"/success{redirect_args}")
 
 
+@blueprint.route("/<identifier>/url", methods=["GET"])
+@utils.login_required
+def get_form_url(identifier: str):
+    """
+    Get the submission url for a form.
+
+    Args:
+        identifier (str): The form identifier.
+    """
+    entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
+    if not entry:
+        flask.abort(status=404)
+    if flask.session["email"] != entry["owner"]:
+        flask.abort(status=403)
+    return flask.jsonify(
+        {
+            "method": "POST",
+            "submission_url": flask.url_for("forms.receive_response", identifier=identifier, _external=True)
+        }
+    )
+
+
 @blueprint.route("/<identifier>/responses", methods=["GET"])
 @utils.login_required
 def get_responses(identifier):

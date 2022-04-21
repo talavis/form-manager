@@ -7,6 +7,12 @@
     color="primary"
     :to="{ name: 'FormBrowser' }"
     />
+
+  <q-card v-if="Object.keys(urlInfo).length > 0" class="q-my-sm">
+    <q-card-section>
+      &lt;form action="{{ urlInfo.submission_url }}" method="{{ urlInfo.method }}"&gt;
+    </q-card-section>
+  </q-card>
   
   <q-table
     class="q-my-lg"
@@ -191,9 +197,12 @@ export default defineComponent({
       ],
       rawResponses: [],
       responsesLoading: false,
-      infoLoading: false,
       responsesError: false,
+      infoLoading: false,
       infoError: false,
+      urlLoading: false,
+      urlError: false,
+      urlInfo: {},
       listingType: 'submission',
       showCopyInfo: false,
     }
@@ -229,6 +238,13 @@ export default defineComponent({
         .then((response) => this.formInfo = response.data.form)
 	.catch((err) => this.infoError = true)
       	.finally(() => this.infoLoading = false);
+      this.urlLoading = true;
+      this.urlError = false;
+      axios
+	.get('/api/v1/form/' + this.identifier + '/url')
+        .then((response) => this.urlInfo = response.data)
+	.catch((err) => this.urlError = true)
+      	.finally(() => this.urlLoading = false);
     },
   },
 
