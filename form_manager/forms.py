@@ -161,10 +161,14 @@ def receive_response(identifier: str):
         redirect_args = ""
     
     if form_info.get("recaptcha_secret"):
-        if not utils.verify_recaptcha(
-            form_info.get("recaptcha_secret"), form_response.get("g-recaptcha-response")
+        if (
+                not "g-recaptcha-response" in form_response or 
+                not utils.verify_recaptcha(
+                    form_info["recaptcha_secret"], form_response["g-recaptcha-response"]
+                )
         ):
             return flask.redirect(f"/failure{redirect_args}")
+        del form_response["g-recaptcha-response"]
 
     if form_info.get("email_recipients"):
         mail.send(
