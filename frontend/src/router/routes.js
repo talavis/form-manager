@@ -25,11 +25,14 @@ const routes = [
 
   {
     path: '/error',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', name: "Error", component: () => import('pages/Error.vue') },
-    ],
+    component: () => import('pages/Error.vue'),
     props: route => ({'message': route.params.message})
+  },
+
+  {
+    path: '/success',
+    alias: '/failure',
+    component: () => import('pages/FormPostResult.vue'),
   },
 
   

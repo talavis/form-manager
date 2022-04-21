@@ -155,11 +155,16 @@ def receive_response(identifier: str):
         return flask.abort(status=400)
     form_response = dict(flask.request.form)
 
+    if form_info.get("redirect"):
+        redirect_args = f"?redirect={form_info['redirect']}"
+    else:
+        redirect_args = ""
+    
     if form_info.get("recaptcha_secret"):
         if not utils.verify_recaptcha(
             form_info.get("recaptcha_secret"), form_response.get("g-recaptcha-response")
         ):
-            flask.abort(status=400)
+            return flask.redirect(f"/failure{redirect_args}")
 
     if form_info.get("email_recipients"):
         mail.send(
@@ -179,7 +184,7 @@ def receive_response(identifier: str):
 
     flask.g.db[f"responses"].insert_one(to_add)
 
-    return flask.Response(status=200)
+    return flask.redirect(f"/success{redirect_args}")
 
 
 @blueprint.route("/<identifier>/responses", methods=["GET"])
