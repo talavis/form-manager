@@ -147,6 +147,7 @@ def delete_form(identifier: str):
     return flask.Response(status=200)
 
 
+@csrf.exempt
 @blueprint.route("/<identifier>/incoming", methods=["POST"])
 def receive_response(identifier: str):
     """
