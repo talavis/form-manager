@@ -262,7 +262,7 @@ export default defineComponent({
     },
     addForm() {
       axios
-	.post('/api/v1/form')
+	.post('/api/v1/form', {}, {headers: {'X-CSRFToken': this.$q.cookies.get('_csrf_token')}})
         .then(() => this.getEntries())
     },
     expandItem(entry) {
@@ -289,7 +289,7 @@ export default defineComponent({
       delete outgoing.saving;
       delete outgoing.saveError;
       axios
-	.patch('/api/v1/form/' + entry.row.identifier, outgoing)
+	.patch('/api/v1/form/' + entry.row.identifier, outgoing, {headers: {'X-CSRFToken': this.$q.cookies.get('_csrf_token')}})
         .then((response) => {
 	  entry.expand = false;
 	  delete this.editData[entry.key];
