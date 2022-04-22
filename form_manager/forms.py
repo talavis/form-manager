@@ -4,8 +4,7 @@ import json
 import flask
 import flask_mail
 
-from . import mail
-from . import utils
+from . import csrf, mail, utils
 
 blueprint = flask.Blueprint("forms", __name__)  # pylint: disable=invalid-name
 
