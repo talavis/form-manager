@@ -64,7 +64,7 @@ def create_app():
     app.register_blueprint(forms.blueprint, url_prefix="/api/v1/form")
     app.register_blueprint(user.blueprint, url_prefix="/api/v1/user")
 
-    @app.route("/api/v1/heartbeat/", methods=["GET"])
+    @app.route("/api/v1/heartbeat", methods=["GET"])
     @talisman(force_https=False)
     def heartbeat():
         return flask.Response(status=200)
