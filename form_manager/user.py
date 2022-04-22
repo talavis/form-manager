@@ -2,7 +2,7 @@
 
 import flask
 
-from . import oauth
+from . import csrf, oauth
 
 blueprint = flask.Blueprint("user", __name__)  # pylint: disable=invalid-name
 
@@ -13,6 +13,7 @@ def user_info():
     return flask.jsonify({"user": flask.session.get("email", "")})
 
 
+@csrf.exempt
 @blueprint.route("/login")
 def oidc_login():
     """Perform a login using OpenID Connect."""
@@ -20,12 +21,15 @@ def oidc_login():
     return oauth.oidc_entry.authorize_redirect(redirect_uri)
 
 
+@csrf.exempt
+@csrf.set_cookie
 @blueprint.route("/login/authorize")
 def oidc_authorize():
     """Authorize a login using OpenID Connect (e.g. Elixir AAI)."""
     token = oauth.oidc_entry.authorize_access_token()
     flask.session["email"] = token.get("userinfo", {}).get("email")
     flask.session.permanent = True
+
     return flask.redirect("/")
 
 

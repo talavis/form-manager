@@ -14,28 +14,8 @@
 
 <script>
 import { defineComponent } from 'vue'
-import axios from 'axios'
 
 export default defineComponent({
   name: 'IndexPage',
-  data () {
-    return {
-      email: "",
-      error: false,
-    }
-  },
-  methods: {
-    doLogin() {
-      axios
-	.post('/api/v1/user/login', {"email": this.email})
-        .then((response) => {
-	  this.$router.push({ name: 'FormBrowser'});
-      })
-      .catch((err) => {
-	this.error = true;
-      });
-
-    }
-  }
 })
 </script>
