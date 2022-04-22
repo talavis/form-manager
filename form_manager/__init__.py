@@ -6,12 +6,14 @@ import os
 import flask
 import flask_mail
 import flask_talisman
+import flask_seasurf
 from authlib.integrations.flask_client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-talisman = flask_talisman.Talisman()
 mail = flask_mail.Mail()
 oauth = OAuth()
+csrf = flask_seasurf.SeaSurf()
+talisman = flask_talisman.Talisman()
 
 from form_manager import config, forms, user, utils  # to avoid issues with circular import 
 
@@ -57,6 +59,8 @@ def create_app():
     )
 
     talisman.init_app(app)
+
+    csrf.init_app(app)
 
     if app.config["REVERSE_PROXY"]:
         app.wsgi_app = ProxyFix(app.wsgi_app)
