@@ -295,9 +295,8 @@ export default defineComponent({
 	  delete this.editData[entry.key];
 	  this.getEntries();
 	  })
-	.catch((err) => {
-	  this.editData[entry.key].saveError = true;
-	});
+	.catch((err) => this.editData[entry.key].saveError = true)
+	.finally(() => this.editData[entry.key].saving = false);
     },
     cancelEdit(entry) {
       entry.expand = false;
