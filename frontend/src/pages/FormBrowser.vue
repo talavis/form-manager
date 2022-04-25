@@ -95,6 +95,7 @@
               <q-item-section>
 		<q-input
 		  dense
+		  outlined
 		  label="Title"
 		  v-model="editData[props.key].title"
 		  />
@@ -104,8 +105,9 @@
               <q-item-section>
 		<q-input
 		  dense
-		  label="Email"
-		  v-model="editData[props.key].email"
+		  outlined
+		  label="Redirect to"
+		  v-model="editData[props.key].redirect"
 		  />
               </q-item-section>
             </q-item>
@@ -113,6 +115,7 @@
               <q-item-section>
 		<q-input
 		  dense
+		  outlined
 		  label="Recaptcha secret"
 		  v-model="editData[props.key].recaptcha_secret"
 		  />
@@ -122,9 +125,12 @@
               <q-item-section>
 		<q-input
 		  dense
-		  label="Redirect to"
-		  v-model="editData[props.key].redirect"
-		  />
+		  outlined
+		  label="Email"
+		  v-model="editData[props.key].email"
+		  hint="Separate multiple emails with ;"
+		  >
+		</q-input>
               </q-item-section>
             </q-item>
 	    <q-item>
@@ -236,7 +242,7 @@ export default defineComponent({
 	  this.entries = response.data['forms']
 	  for (let entry of this.entries) {
 	    if (entry.email_recipients.length > 0)
-	      entry.email = entry.email_recipients[0];
+	      entry.email = entry.email_recipients.join(';');
 	    else
       entry.email = "";
 	    delete entry.email_recipients;
@@ -283,8 +289,8 @@ export default defineComponent({
       this.editData[entry.key].saving = true;
       this.editData[entry.key].saveError = false;
       let outgoing = JSON.parse(JSON.stringify(this.editData[entry.key]));
-      console.log(outgoing)
-      outgoing.email_recipients = [outgoing.email];
+      outgoing.email_recipients = outgoing.email.split(';');
+      outgoing.email_recipients.forEach((entry, index) => outgoing.email_recipients[index] = entry.trim())
       delete outgoing.email;
       delete outgoing.saving;
       delete outgoing.saveError;

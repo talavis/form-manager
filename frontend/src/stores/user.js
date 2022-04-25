@@ -13,7 +13,6 @@ export const useUserStore = defineStore('user', {
 	axios
 	  .get('/api/v1/user/me')
           .then((response) => {
-	    console.log(response)
 	    this.email = response.data['user']
 	    this.loaded = true
 	    resolve()
