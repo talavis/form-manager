@@ -7,7 +7,7 @@
     color="primary"
     :to="{ name: 'FormBrowser' }"
     />
-
+  
   <q-card v-if="Object.keys(urlInfo).length > 0" class="q-my-sm">
     <q-card-section>
       &lt;form action="{{ urlInfo.submission_url }}" method="{{ urlInfo.method }}"&gt;
@@ -33,14 +33,14 @@
         color="white"
         text-color="primary"
         :options="[
-		  {label: 'By submission', value: 'submission'},
-		  {label: 'By question', value: 'question'}
-		  ]"
-	/>
+                  {label: 'By submission', value: 'submission'},
+                  {label: 'By question', value: 'question'}
+                  ]"
+        />
     </template>
     <template #header="props">
       <q-tr :props="props">
-	<q-th auto-width />
+        <q-th auto-width />
         <q-th
           v-for="col in props.cols"
           :key="col.name"
@@ -50,10 +50,10 @@
         </q-th>
       </q-tr>
     </template>
-
+    
     <template #body="props">
       <q-tr :props="props">
-	<q-td auto-width>
+        <q-td auto-width>
           <q-btn
             @click="props.expand = !props.expand"
             color="primary"
@@ -62,7 +62,7 @@
             round
             dense
             />
-	</q-td>
+        </q-td>
         <q-td
           v-for="col in props.cols"
           :key="col.name"
@@ -73,31 +73,33 @@
       </q-tr>
       <q-tr v-show="props.expand" :props="props">
         <q-td colspan="100%">
-	  <q-markup-table flat v-if="listingType === 'submission'">
-	    <thead>
-	    </thead>
-	    <tbody>
-	      <tr v-for="value, key in props.row.response" :key="key">
-		<td class="text-weight-bold text-left">
-		  {{ key }}
-		</td>
-		<td>
-		  {{ value }}
-		</td>
-	      </tr>
-	    </tbody>
-	  </q-markup-table>
-	  <q-markup-table flat v-else>
-	    <thead>
-	    </thead>
-	    <tbody>
-	      <tr v-for="value, i in props.row.responses" :key="i">
-		<td>
-		  {{ value }}
-		</td>
-	      </tr>
-	    </tbody>
-	  </q-markup-table>
+          <q-scroll-area style="height: 250px; max-width: 100%;">
+            <q-markup-table flat v-if="listingType === 'submission'" :wrap-cells="true">
+              <thead>
+              </thead>
+              <tbody>
+		<tr v-for="value, key in props.row.response" :key="key">
+                  <td class="text-weight-bold text-left">
+                    {{ key }}
+                  </td>
+                  <td>
+                    {{ value }}
+                  </td>
+		</tr>
+              </tbody>
+            </q-markup-table>
+            <q-markup-table flat v-else>
+              <thead>
+              </thead>
+              <tbody>
+		<tr v-for="value, i in props.row.responses" :key="i">
+                  <td>
+                    {{ value }}
+                  </td>
+		</tr>
+              </tbody>
+            </q-markup-table>
+          </q-scroll-area>
         </q-td>
       </q-tr>
     </template>
