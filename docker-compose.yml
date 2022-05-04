@@ -16,8 +16,9 @@ services:
       dockerfile: Dockerfiles/Dockerfile.backend
       target: dev
     environment:
-      - FLASK_ENV=development
-      - FLASK_APP=form_manager
+      FLASK_ENV: development
+      FLASK_APP: form_manager
+      TZ: Europe/Stockholm
     depends_on:
       - db
     restart: on-failure
