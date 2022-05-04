@@ -1,5 +1,5 @@
 """General helper functions."""
-import datetime
+from datetime import datetime
 import functools
 import os
 import secrets
@@ -59,10 +59,10 @@ def make_timestamp():
     Generate a timestamp of the current time.
 
     returns:
-        datetime.datetime: The current time.
+        datetime: The current time.
     """
     fmt = "%a, %d %b %Y %H:%M:%S %Z"
-    return datetime.datetime.now(pytz.timezone(os.environ.get("TZ", "Europe/Stockholm"))).strftime(fmt)
+    return datetime.now(pytz.timezone(os.environ.get("TZ", "Europe/Stockholm"))).strftime(fmt)
 
 
 def verify_recaptcha(secret: str, response: str):
