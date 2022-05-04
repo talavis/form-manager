@@ -173,10 +173,12 @@ def receive_response(identifier: str):
         del form_response["g-recaptcha-response"]
 
     if form_info.get("email_recipients"):
+        email_body = json.dumps(form_response)
+        email_body += "\n\nTime: " + str(utils.make_timestamp())
         mail.send(
             flask_mail.Message(
                 f"Form from {form_info.get('title')}",
-                body=json.dumps(form_response),
+                body=email_body,
                 recipients=form_info["email_recipients"],
             )
         )
