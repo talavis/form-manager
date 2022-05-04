@@ -1,10 +1,12 @@
 """General helper functions."""
 import datetime
 import functools
+import os
 import secrets
 
 import flask
 import pymongo
+import pytz
 import requests
 
 
@@ -59,7 +61,8 @@ def make_timestamp():
     returns:
         datetime.datetime: The current time.
     """
-    return datetime.datetime.now()
+    fmt = "%a, %d %b %Y %H:%M:%S %Z"
+    return datetime.datetime.now(pytz.timezone(os.environ.get("TZ", "Europe/Stockholm"))).strftime(fmt)
 
 
 def verify_recaptcha(secret: str, response: str):
