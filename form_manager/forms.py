@@ -16,7 +16,7 @@ def form():
         "title": "",
         "recaptcha_secret": "",
         "email_recipients": [],
-        "owner": "",
+        "owners": [],
         "redirect": "",
     }
 
@@ -43,11 +43,13 @@ def validate_form(indata: dict, reference: dict) -> bool:
         if not type(indata[prop]) == type(reference[prop]):
             flask.current_app.logger.debug("Wrong property type")
             return False
-    for prop in ("identifier", "owner"):
-        if prop in indata:
-            if indata[prop] != reference[prop]:
-                flask.current_app.logger.debug("Trying to set %s", prop)
-                return False
+    if "identifier" in indata:
+        if indata["identifier"] != reference["identifier"]:
+            flask.current_app.logger.debug("Trying to modifify the identifier")
+            return False
+    if "owners" in indata:
+        if flask.session.get("email") not in indata["owners"]:
+            return False
     return True
 
 
@@ -113,7 +115,9 @@ def edit_form(identifier: str):
     Args:
         identifier (str): The form identifier.
     """
-    indata = flask.request.json
+    indata = flask.request.get_json(silent=True)
+    if not indata:
+        flask.abort(status=400)
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
