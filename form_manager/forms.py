@@ -50,6 +50,11 @@ def validate_form(indata: dict, reference: dict) -> bool:
     if "owners" in indata:
         if flask.session.get("email") not in indata["owners"]:
             return False
+    for list_prop in ("owners", "email_recipients"):
+        if list_prop in indata:
+            for entry in indata[list_prop]:
+                if not isinstance(entry, str):
+                    return False
     return True
 
 
