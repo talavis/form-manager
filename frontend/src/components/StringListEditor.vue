@@ -22,7 +22,7 @@
     </q-input>
     <div class="flex">
       <q-chip
-	v-for="value of modelValue"
+	v-for="value of entries"
 	:key="value"
 	square
 	removable
@@ -40,6 +40,8 @@
 </template>
 
 <script>
+import { useUserStore } from 'stores/user'
+
 export default {
   name: 'StringListEditor',
 
@@ -48,11 +50,25 @@ export default {
       get () {
         return this.evaluateValue(this.newValue);
       },
+    },
+    entries: {
+      get () {
+	if (this.hideCurrentUser) {
+	  const store = useUserStore();
+	  return this.modelValue.filter((entry) => entry !== store.email)
+	}
+	else return this.modelValue;
+      }
     }
   },
   
   props: {
     isLoading: {
+      type: Boolean,
+      default: false,
+    },
+
+    hideCurrentUser: {
       type: Boolean,
       default: false,
     },
@@ -71,8 +87,6 @@ export default {
       type: String,
       default: 'label',
     },
-
-
   },
 
   data () {
