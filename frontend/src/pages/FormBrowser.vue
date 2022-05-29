@@ -1,6 +1,7 @@
 <template>
 <q-page class="flex flex-center">
   <q-table
+    style="max-width: 850px"
     title="Forms"
     :rows="entries"
     :columns="columns"
