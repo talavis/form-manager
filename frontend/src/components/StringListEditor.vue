@@ -53,7 +53,7 @@ export default {
 	const store = useUserStore();
 	return store.email
       }
-    }
+    },
   },
   
   props: {
@@ -71,6 +71,7 @@ export default {
       type: String,
       required: true,
     },
+  },
 
   data () {
     return {
