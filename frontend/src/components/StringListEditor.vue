@@ -22,10 +22,10 @@
     </q-input>
     <div class="flex">
       <q-chip
-	v-for="value of entries"
+	v-for="value of modelValue"
 	:key="value"
 	square
-	removable
+	:removable="(staticCurrentUser && currentUser === value) ? false : true"
 	color="primary"
 	text-color="white"
 	@remove="deleteValue(value)">
@@ -51,13 +51,10 @@ export default {
         return this.evaluateValue(this.newValue);
       },
     },
-    entries: {
+    currentUser: {
       get () {
-	if (this.hideCurrentUser) {
-	  const store = useUserStore();
-	  return this.modelValue.filter((entry) => entry !== store.email)
-	}
-	else return this.modelValue;
+	const store = useUserStore();
+	return store.email
       }
     }
   },
@@ -68,7 +65,7 @@ export default {
       default: false,
     },
 
-    hideCurrentUser: {
+    staticCurrentUser: {
       type: Boolean,
       default: false,
     },
