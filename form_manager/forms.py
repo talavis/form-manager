@@ -62,7 +62,7 @@ def validate_form(indata: dict, reference: dict) -> bool:
 @utils.login_required
 def list_forms():
     """List all forms belonging to the current user."""
-    form_info = list(flask.g.db["forms"].find({"owner": flask.session.get("email")}, {"_id": 0}))
+    form_info = list(flask.g.db["forms"].find({"owners": flask.session.get("email")}, {"_id": 0}))
     return flask.jsonify(
         {"forms": form_info, "url": flask.url_for("forms.list_forms", _external=True)}
     )
@@ -80,7 +80,7 @@ def get_form_info(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     return flask.jsonify(
         {
