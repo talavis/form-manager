@@ -65,8 +65,8 @@
         </q-td>
         <q-td key="sendEmail" :props="props">
           <q-icon
-	    :name="props.row.email.length ? 'check_circle' : 'cancel'"
-	    :color="props.row.email.length ? 'accent' : 'secondary'"
+	    :name="props.row.email_recipients.length ? 'check_circle' : 'cancel'"
+	    :color="props.row.email_recipients.length ? 'accent' : 'secondary'"
 	    size="1.5em">
           </q-icon>
         </q-td>
@@ -123,14 +123,18 @@
             </q-item>
             <q-item>
               <q-item-section>
-		<q-input
-		  dense
-		  outlined
-		  label="Email"
-		  v-model="editData[props.key].email"
-		  hint="Separate multiple emails with ;"
-		  >
-		</q-input>
+		<str-list-editor
+		  v-model="editData[props.key].email_recipients"
+		  field-title="Email Recipients"
+		  />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+		<str-list-editor
+		  v-model="editData[props.key].owners"
+		  field-title="Form Owners"
+		  />
               </q-item-section>
             </q-item>
 	    <q-item>
@@ -178,10 +182,16 @@
 
 <script>
 import { defineComponent } from 'vue'
+
 import axios from 'axios'
+
+import StringListEditor from 'components/StringListEditor.vue'
 
 export default defineComponent({
   name: 'FormBrowser',
+  components: {
+    'str-list-editor': StringListEditor,
+  },
   data () {
     return {
       entries: [],
@@ -240,14 +250,6 @@ export default defineComponent({
 	.get('/api/v1/form')
         .then((response) => {
 	  this.entries = response.data['forms']
-	  for (let entry of this.entries) {
-	    if (entry.email_recipients.length > 0)
-	      entry.email = entry.email_recipients.join(';');
-	    else
-      entry.email = "";
-	    delete entry.email_recipients;
-	    
-	  }
 	})
       .catch((err) => {
 	this.loadError = true;
@@ -272,12 +274,14 @@ export default defineComponent({
         .then(() => this.getEntries())
     },
     expandItem(entry) {
+      console.log(entry)
       entry.expand = !entry.expand;
       if (!(entry.key in this.editData)) {
 	this.editData[entry.key] = {
 	  title: entry.row.title,
 	  recaptcha_secret: entry.row.recaptcha_secret,
-	  email: entry.row.email,
+	  email_recipients: JSON.parse(JSON.stringify(entry.row.email_recipients)),
+	  owners: JSON.parse(JSON.stringify(entry.row.owners)),
 	  redirect: entry.row.redirect,
 	  saving: false,
 	  saveError: false,
@@ -289,9 +293,6 @@ export default defineComponent({
       this.editData[entry.key].saving = true;
       this.editData[entry.key].saveError = false;
       let outgoing = JSON.parse(JSON.stringify(this.editData[entry.key]));
-      outgoing.email_recipients = outgoing.email.split(';');
-      outgoing.email_recipients.forEach((entry, index) => outgoing.email_recipients[index] = entry.trim())
-      delete outgoing.email;
       delete outgoing.saving;
       delete outgoing.saveError;
       axios
