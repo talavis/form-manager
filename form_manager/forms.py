@@ -104,7 +104,7 @@ def add_form():
         flask.current_app.logger.debug("Validation failed")
         flask.abort(status=400)
     entry.update(indata)
-    entry["owner"] = flask.session["email"]
+    entry["owners"] = [flask.session["email"]]
     flask.g.db["forms"].insert_one(entry)
     return flask.jsonify(
         {"identifier": entry["identifier"], "url": flask.url_for("forms.add_form", _external=True)}
