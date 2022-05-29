@@ -14,6 +14,9 @@ WORKDIR /code
 
 FROM base as build
 
+ARG version
+ENV VERSION=$version
+
 RUN quasar build
 
 FROM nginx:alpine as production

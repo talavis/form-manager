@@ -6,6 +6,9 @@
           Form Manager
         </q-toolbar-title>
 
+	<div class="q-mr-xl text-weight-bold text-caption">
+	  {{ version }}
+	</div>
         <q-btn
 	  flat
 	  round
@@ -31,8 +34,9 @@ export default defineComponent({
   name: 'MainLayout',
   setup() {
     const userStore = useUserStore()
+    const version = process.env.VERSION
 
-    return { userStore }
+    return { userStore, version }
   },
 })
 </script>
