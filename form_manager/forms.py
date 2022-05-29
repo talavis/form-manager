@@ -126,7 +126,7 @@ def edit_form(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     if not validate_form(indata, entry):
         flask.current_app.logger.debug("Validation failed")
@@ -148,7 +148,7 @@ def delete_form(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     flask.g.db["forms"].delete_one(entry)
     flask.g.db["responses"].delete_many({"identifier": entry["identifier"]})
