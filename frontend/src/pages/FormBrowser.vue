@@ -135,6 +135,7 @@
 		<str-list-editor
 		  v-model="editData[props.key].owners"
 		  field-title="Form Owners"
+		  :hide-current-user="true"
 		  />
               </q-item-section>
             </q-item>
