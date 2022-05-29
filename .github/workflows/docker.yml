@@ -55,6 +55,7 @@ jobs:
           file: ${{ matrix.dockerfile }}
           context: .
           push: true
+          build-args: version=${{ github.ref_name }}
           target: production
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
