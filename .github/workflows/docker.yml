@@ -10,6 +10,9 @@ jobs:
   push_to_registry:
     if: github.repository == 'talavis/form-manager'
     name: Publish Docker Image
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     strategy:
       matrix:
