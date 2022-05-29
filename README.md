@@ -14,6 +14,8 @@ Features:
 
 ## Setup
 
+See `docker-compose.yml`.
+
 * Mongo database
 * Backend (Flask)
 * Frontend (Quasar)
