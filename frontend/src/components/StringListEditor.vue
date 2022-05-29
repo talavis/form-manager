@@ -33,9 +33,6 @@
       </q-chip>
     </div>
   </div>
-  <q-inner-loading :showing="isLoading">
-    <q-spinner-gears size="100px" color="primary" />
-  </q-inner-loading>
 </div>
 </template>
 
@@ -60,11 +57,6 @@ export default {
   },
   
   props: {
-    isLoading: {
-      type: Boolean,
-      default: false,
-    },
-
     staticCurrentUser: {
       type: Boolean,
       default: false,
@@ -79,12 +71,6 @@ export default {
       type: String,
       required: true,
     },
-
-    fieldIcon: {
-      type: String,
-      default: 'label',
-    },
-  },
 
   data () {
     return {
