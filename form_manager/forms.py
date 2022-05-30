@@ -16,7 +16,7 @@ def form():
         "title": "",
         "recaptcha_secret": "",
         "email_recipients": [],
-        "owner": "",
+        "owners": [],
         "redirect": "",
     }
 
@@ -43,11 +43,18 @@ def validate_form(indata: dict, reference: dict) -> bool:
         if not type(indata[prop]) == type(reference[prop]):
             flask.current_app.logger.debug("Wrong property type")
             return False
-    for prop in ("identifier", "owner"):
-        if prop in indata:
-            if indata[prop] != reference[prop]:
-                flask.current_app.logger.debug("Trying to set %s", prop)
-                return False
+    if "identifier" in indata:
+        if indata["identifier"] != reference["identifier"]:
+            flask.current_app.logger.debug("Trying to modifify the identifier")
+            return False
+    if "owners" in indata:
+        if flask.session.get("email") not in indata["owners"]:
+            return False
+    for list_prop in ("owners", "email_recipients"):
+        if list_prop in indata:
+            for entry in indata[list_prop]:
+                if not isinstance(entry, str):
+                    return False
     return True
 
 
@@ -55,7 +62,7 @@ def validate_form(indata: dict, reference: dict) -> bool:
 @utils.login_required
 def list_forms():
     """List all forms belonging to the current user."""
-    form_info = list(flask.g.db["forms"].find({"owner": flask.session.get("email")}, {"_id": 0}))
+    form_info = list(flask.g.db["forms"].find({"owners": flask.session.get("email")}, {"_id": 0}))
     return flask.jsonify(
         {"forms": form_info, "url": flask.url_for("forms.list_forms", _external=True)}
     )
@@ -73,7 +80,7 @@ def get_form_info(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     return flask.jsonify(
         {
@@ -97,7 +104,7 @@ def add_form():
         flask.current_app.logger.debug("Validation failed")
         flask.abort(status=400)
     entry.update(indata)
-    entry["owner"] = flask.session["email"]
+    entry["owners"] = [flask.session["email"]]
     flask.g.db["forms"].insert_one(entry)
     return flask.jsonify(
         {"identifier": entry["identifier"], "url": flask.url_for("forms.add_form", _external=True)}
@@ -113,11 +120,13 @@ def edit_form(identifier: str):
     Args:
         identifier (str): The form identifier.
     """
-    indata = flask.request.json
+    indata = flask.request.get_json(silent=True)
+    if not indata:
+        flask.abort(status=400)
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     if not validate_form(indata, entry):
         flask.current_app.logger.debug("Validation failed")
@@ -139,7 +148,7 @@ def delete_form(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     flask.g.db["forms"].delete_one(entry)
     flask.g.db["responses"].delete_many({"identifier": entry["identifier"]})
