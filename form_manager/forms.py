@@ -216,7 +216,7 @@ def get_form_url(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] != entry["owner"]:
+    if flask.session["email"] not in entry["owners"]:
         flask.abort(status=403)
     return flask.jsonify(
         {
@@ -240,7 +240,7 @@ def get_responses(identifier):
     form_info = flask.g.db["forms"].find_one({"identifier": identifier})
     if not form_info:
         flask.abort(status=404)
-    if flask.session["email"] != form_info["owner"]:
+    if flask.session["email"] not in form_info["owners"]:
         flask.abort(status=403)
     responses = list(flask.g.db["responses"].find({"identifier": identifier}))
     for response in responses:
