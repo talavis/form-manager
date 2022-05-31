@@ -55,7 +55,7 @@ def create_app():
         client_id=app.config.get("OIDC_ID"),
         client_secret=app.config.get("OIDC_SECRET"),
         server_metadata_url=app.config.get("OIDC_METADATA"),
-        client_kwargs={"scope": "openid profile email roles"},
+        client_kwargs={"scope": "openid profile email"},
     )
 
     talisman.init_app(app)
