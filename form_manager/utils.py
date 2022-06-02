@@ -111,4 +111,3 @@ def has_form_access(username, entry):
         bool: Whether the user has access.
     """
     return username in entry["owners"]
-

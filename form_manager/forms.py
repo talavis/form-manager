@@ -185,7 +185,9 @@ def receive_response(identifier: str):
     if form_info.get("email_recipients"):
         html_form_response = {}
         for key in form_response:
-            html_form_response[key] = form_response[key].encode('ascii', 'xmlcharrefreplace').decode()
+            html_form_response[key] = (
+                form_response[key].encode("ascii", "xmlcharrefreplace").decode()
+            )
         text_body = "JSON:\n\n"
         text_body += json.dumps(form_response, indent=2, sort_keys=True)
         text_body += "\n\nPython dict:\n\n"
@@ -194,7 +196,9 @@ def receive_response(identifier: str):
         html_body = "<p>JSON:</p>"
         html_body += f"<p><pre><code>{json.dumps(html_form_response, indent=2, sort_keys=True)}</code></pre></p>"
         html_body += "<p>Python dict:</p>"
-        html_body += f"<p><pre><code>{pprint.pformat(html_form_response, indent=2)}</code></pre></p>"
+        html_body += (
+            f"<p><pre><code>{pprint.pformat(html_form_response, indent=2)}</code></pre></p>"
+        )
         html_body += f"<p>Response received: {utils.make_timestamp()} </p>"
         mail.send(
             flask_mail.Message(
