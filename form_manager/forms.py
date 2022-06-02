@@ -1,5 +1,6 @@
 """Endpoints related to forms."""
 import json
+import pprint
 
 import flask
 import flask_mail
@@ -182,7 +183,6 @@ def receive_response(identifier: str):
         del form_response["g-recaptcha-response"]
 
     if form_info.get("email_recipients"):
-        import pprint
         html_form_response = {}
         for key in form_response:
             html_form_response[key] = form_response[key].encode('ascii', 'xmlcharrefreplace').decode()
