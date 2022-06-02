@@ -97,3 +97,18 @@ def login_required(func):
 def generate_id():
     """Generate an identifier for a form entry."""
     return secrets.token_urlsafe(12)
+
+
+def has_form_access(username, entry):
+    """
+    Verify that the given user may access a specific entry.
+
+    Args:
+        username (str): The username (e.g. email) of the user.
+        entry (dict): The form entry.
+
+    Returns:
+        bool: Whether the user has access.
+    """
+    return username in entry["owners"]
+

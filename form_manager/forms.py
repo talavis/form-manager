@@ -80,7 +80,7 @@ def get_form_info(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] not in entry["owners"]:
+    if not utils.has_form_access(flask.session["email"], entry):
         flask.abort(status=403)
     return flask.jsonify(
         {
@@ -126,7 +126,7 @@ def edit_form(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] not in entry["owners"]:
+    if not utils.has_form_access(flask.session["email"], entry):
         flask.abort(status=403)
     if not validate_form(indata, entry):
         flask.current_app.logger.debug("Validation failed")
@@ -148,7 +148,7 @@ def delete_form(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] not in entry["owners"]:
+    if not utils.has_form_access(flask.session["email"], entry):
         flask.abort(status=403)
     flask.g.db["forms"].delete_one(entry)
     flask.g.db["responses"].delete_many({"identifier": entry["identifier"]})
@@ -216,7 +216,7 @@ def get_form_url(identifier: str):
     entry = flask.g.db["forms"].find_one({"identifier": identifier}, {"_id": 0})
     if not entry:
         flask.abort(status=404)
-    if flask.session["email"] not in entry["owners"]:
+    if not utils.has_form_access(flask.session["email"], entry):
         flask.abort(status=403)
     return flask.jsonify(
         {
@@ -240,7 +240,7 @@ def get_responses(identifier):
     form_info = flask.g.db["forms"].find_one({"identifier": identifier})
     if not form_info:
         flask.abort(status=404)
-    if flask.session["email"] not in form_info["owners"]:
+    if not utils.has_form_access(flask.session["email"], form_info):
         flask.abort(status=403)
     responses = list(flask.g.db["responses"].find({"identifier": identifier}))
     for response in responses:
