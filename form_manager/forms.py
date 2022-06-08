@@ -1,5 +1,6 @@
 """Endpoints related to forms."""
 import json
+import pprint
 
 import flask
 import flask_mail
@@ -182,12 +183,12 @@ def receive_response(identifier: str):
         del form_response["g-recaptcha-response"]
 
     if form_info.get("email_recipients"):
-        email_body = json.dumps(form_response)
-        email_body += "\n\nTime: " + str(utils.make_timestamp())
+        text_body = json.dumps(form_response, indent=2, sort_keys=True, ensure_ascii=False)
+        text_body += f"\n\nResponse received: {utils.make_timestamp()}"
         mail.send(
             flask_mail.Message(
                 f"Form from {form_info.get('title')}",
-                body=email_body,
+                body=text_body,
                 recipients=form_info["email_recipients"],
             )
         )

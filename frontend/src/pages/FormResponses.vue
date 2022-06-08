@@ -10,7 +10,7 @@
   
   <q-card v-if="Object.keys(urlInfo).length > 0" class="q-my-sm">
     <q-card-section>
-      &lt;form action="{{ urlInfo.submission_url }}" method="{{ urlInfo.method }}"&gt;
+      &lt;form action="{{ urlInfo.submission_url }}" method="{{ urlInfo.method }}" accept-charset="utf-8"&gt;
     </q-card-section>
   </q-card>
   
