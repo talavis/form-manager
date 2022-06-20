@@ -184,7 +184,7 @@ def receive_response(identifier: str):
 
     if form_info.get("email_recipients"):
         text_body = json.dumps(form_response, indent=2, sort_keys=True, ensure_ascii=False)
-        text_body += f"\n\nResponse received: {utils.make_timestamp()}"
+        text_body += f"\n\nSubmission received: {utils.make_timestamp()}"
         mail.send(
             flask_mail.Message(
                 f"Form from {form_info.get('title')}",
